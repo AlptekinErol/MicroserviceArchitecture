@@ -10,11 +10,11 @@ public abstract class BaseEventBus : IEventBus
     public readonly IServiceProvider ServiceProvider;
     public readonly IEventBusSubscriptionManager SubsManager;
 
-    private EventBusConfig eventBusConfig;
+    public EventBusConfig EventBusConfig { get; set; }
 
     public BaseEventBus(EventBusConfig config, IServiceProvider serviceProvider)
     {
-        eventBusConfig = config;
+        EventBusConfig = config;
         ServiceProvider = serviceProvider;
         SubsManager = new InMemoryEventBusSubscriptionManager(ProcessEventName);
     }
@@ -27,14 +27,14 @@ public abstract class BaseEventBus : IEventBus
     /// <returns></returns>
     public virtual string ProcessEventName(string eventName)
     {
-        if (eventBusConfig.DeleteEventPrefix)
+        if (EventBusConfig.DeleteEventPrefix)
         {
-            eventName = eventName.TrimStart(eventBusConfig.EventNamePrefix.ToArray());
+            eventName = eventName.TrimStart(EventBusConfig.EventNamePrefix.ToArray());
         }
 
-        if (eventBusConfig.DeleteEventSuffix)
+        if (EventBusConfig.DeleteEventSuffix)
         {
-            eventName = eventName.TrimEnd(eventBusConfig.EventNameSuffix.ToArray());
+            eventName = eventName.TrimEnd(EventBusConfig.EventNameSuffix.ToArray());
         }
 
         return eventName;
@@ -47,12 +47,16 @@ public abstract class BaseEventBus : IEventBus
     /// <returns></returns>
     public virtual string GetSubName(string eventName)
     {
-        return $"{eventBusConfig.SubscriberClientAppName}.{ProcessEventName(eventName)}";
+        return $"{EventBusConfig.SubscriberClientAppName}.{ProcessEventName(eventName)}";
     }
 
+    /// <summary>
+    /// Disposing the EventBus and clearing the subscription manager.
+    /// </summary>
     public virtual void Dispose()
     {
-        eventBusConfig = null;
+        EventBusConfig = null;
+        SubsManager.Clear();
     }
 
     /// <summary>
@@ -78,7 +82,7 @@ public abstract class BaseEventBus : IEventBus
                     var handler = ServiceProvider.GetService(subscription.HandlerType);
                     if (handler == null) continue;
 
-                    var eventType = SubsManager.GetEventTypeByName($"{eventBusConfig.EventNamePrefix}{eventName}{eventBusConfig.EventNameSuffix}"); // kırpılmamış event'in type'ı elde ediliyor
+                    var eventType = SubsManager.GetEventTypeByName($"{EventBusConfig.EventNamePrefix}{eventName}{EventBusConfig.EventNameSuffix}"); // kırpılmamış event'in type'ı elde ediliyor
                     var integrationEvent = JsonConvert.DeserializeObject(message, eventType);
 
 
