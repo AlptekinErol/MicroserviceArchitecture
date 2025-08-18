@@ -22,9 +22,7 @@ public class InMemoryEventBusSubscriptionManager : IEventBusSubscriptionManager
 
     public void Clear() => _handlers.Clear();
 
-    public void AddSubscription<T, TH>()
-        where T : IntegrationEvent
-        where TH : IIntegrationEventHandler<T>
+    public void AddSubscription<T, TH>() where T : IntegrationEvent where TH : IIntegrationEventHandler<T>
     {
         var eventName = GetEventKey<T>();
 
@@ -36,11 +34,23 @@ public class InMemoryEventBusSubscriptionManager : IEventBusSubscriptionManager
         }  
     }
 
+    /// <summary>
+    /// This method is adding subscriptions, first if is checking the is event has any subscribtions 
+    /// if yes continue if no creating subscription with its handler
+    /// second if checking is there duplicate subscription 
+    /// if yes throw ex
+    /// last block is adding subscription for its handler directly
+    /// Basically if this event has 0 subscriptions its adding on first if, 
+    /// and if this event has subscriptions it will check is there dup and create subscribtion
+    /// </summary>
+    /// <param name="handlerType"></param>
+    /// <param name="eventName"></param>
+    /// <exception cref="ArgumentException"></exception>
     private void AddSubscription(Type handlerType, string eventName)
     {
         if (!HasSubscriptionForEvent(eventName))
         {
-            _handlers.Add(eventName, new List<SubscriptionInfo>());
+            _handlers.Add(eventName, new List<SubscriptionInfo>()); 
         }
 
         if (_handlers[eventName].Any(s => s.HandlerType == handlerType))
@@ -94,9 +104,7 @@ public class InMemoryEventBusSubscriptionManager : IEventBusSubscriptionManager
         handler?.Invoke(this, eventName);
     }
 
-    private SubscriptionInfo FindSubscriptionToRemove<T, TH>()
-    where T : IntegrationEvent
-    where TH : IIntegrationEventHandler<T>
+    private SubscriptionInfo FindSubscriptionToRemove<T, TH>() where T : IntegrationEvent where TH : IIntegrationEventHandler<T>
     {
         var eventName = GetEventKey<T>();
         return FindSubscriptionToRemove(eventName, typeof(TH));

@@ -9,7 +9,7 @@ public class EventBusConfig
     public string EventBusConnectionString { get; set; } = String.Empty;
     public string SubscriberClientAppName { get; set; } = String.Empty; // Hangi servis yeni queue yaratacak (order servis? basketservice?) NotificationService.OrderCreated mesela
     public string EventNamePrefix { get; set; } = String.Empty; // Prefix ve Suffix kullanımı => OrderCreatedIntegrationEvent yerine OrderCreated görmek için
-    public string EventNameSuffix { get; set; } = "IntegrationEvent"; // 11.
+    public string EventNameSuffix { get; set; } = "IntegrationEvent"; // 11. Satır
     public EventBusType EventBusType { get; set; } = EventBusType.RabbitMq; // Default EventBus
     public object Connection { get; set; }  // Başka bir messageBroker kullanımı için ileriki durumlarda. Object Factory? connection
     public bool DeleteEventPrefix => !String.IsNullOrEmpty(EventNamePrefix);
