@@ -1,0 +1,7 @@
+CatalogBrand
+Azure
+.NET
+Visual Studio
+Other
+CatalogBrandTestOne
+CatalogBrandTestTwo
